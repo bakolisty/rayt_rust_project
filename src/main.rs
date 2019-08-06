@@ -6,7 +6,6 @@ const WIDTH: usize = 640;
 const HEIGHT: usize = 360;
 
 fn to_buffer_index(i: usize, j: usize, width: usize, height: usize) -> usize {
-    // flip height from bottom to top
     ((height - 1 - i) * width) + j
 }
 
