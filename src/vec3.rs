@@ -15,27 +15,44 @@ impl Vec3 {
         Vec3 {x: x, y: y, z: z, r: x, g: y, b: z}
     }
 
-    pub fn dot(v1: Vec3, v2: Vec3) -> Vec3 {
-    Vec3 {
-            x: v1.x+v2.x,
-            y: v1.y+v2.y,
-            z: v1.z+v2.z,
-            r: v1.r,
-            g: v1.g,
-            b: v1.b,
+    pub fn length(&self) -> f32 {
+        f32::sqrt(self.x*self.x+self.y*self.y+self.z*self.z)
+    }
+
+    pub fn squared_len(&self) -> f32 {
+        self.x*self.x+self.y*self.y+self.z*self.z
+    }
+
+    pub fn dot(&self, v2: Vec3) -> f32 {
+        self.x*v2.x+self.y*v2.y+self.z*v2.z
+    }
+
+    pub fn cross(&self, v2: Vec3) -> Vec3 {
+        Vec3 {
+            x: (self.y*v2.z-self.z*v2.y),
+            y: -(self.x*v2.z-self.z*v2.z),
+            z: (self.x*v2.y-self.y*v2.x),
+            r: self.r,
+            g: self.g,
+            b: self.b,
         }
     }
 
-    pub fn cross(v1: Vec3, v2: Vec3) -> Vec3 {
+    pub fn make_unit_vec(&self) -> Vec3 {
+        let k = 1.0 / self.length();
         Vec3 {
-            x: (v1.y*v2.z-v1.z*v2.y),
-            y: -(v1.x*v2.z-v1.z*v2.z),
-            z: (v1.x*v2.y-v1.y*v2.x),
-            r: v1.r,
-            g: v1.g,
-            b: v1.b,
+            x: self.x*k,
+            y: self.y*k,
+            z: self.z*k,
+            r: self.r,
+            g: self.g,
+            b: self.b,
         }
     }
+}
+
+pub fn unit_vec3(v: Vec3) -> Vec3 {
+    v / v.length()
 }
 
 impl ops::Add<Vec3> for Vec3 {
@@ -50,6 +67,14 @@ impl ops::Add<Vec3> for Vec3 {
             g: self.g,
             b: self.b,
         }
+    }
+}
+
+impl ops::AddAssign for Vec3 {
+    fn add_assign(&mut self, rhs: Vec3) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
     }
 }
 
@@ -121,6 +146,21 @@ impl ops::Div<f32> for Vec3 {
             x: self.x / rhs,
             y: self.y / rhs,
             z: self.z / rhs,
+            r: self.r,
+            g: self.g,
+            b: self.b,
+        }
+    }
+}
+
+impl ops::Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Vec3 {
+        Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
             r: self.r,
             g: self.g,
             b: self.b,

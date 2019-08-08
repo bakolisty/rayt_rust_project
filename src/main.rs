@@ -1,8 +1,11 @@
 extern crate minifb;
 
 mod vec3;
+mod ray;
 
 use minifb::{Key, WindowOptions, Window};
+use vec3::Vec3;
+use ray::Ray;
 
 const WIDTH: usize = 640;
 const HEIGHT: usize = 360;
@@ -13,6 +16,24 @@ fn to_buffer_index(i: usize, j: usize, width: usize, height: usize) -> usize {
 
 fn to_bgra(r: u32, g: u32, b: u32) -> u32 {
     255 << 24 | r << 16 | g << 8 | b
+}
+
+fn hit_sphere(center: Vec3, radius: f32, r: &Ray) -> bool {
+    let oc = r.origin - center;
+    let a = r.direction.dot(r.direction);
+    let b = 2.0 * oc.dot(r.direction);
+    let c = oc.dot(oc) - radius*radius;
+    let discriminant = b*b - 4 as f32*a*c;
+    discriminant > 0 as f32
+}
+
+fn color(r: Ray) -> Vec3 {
+    if hit_sphere(Vec3::new(0 as f32, 0 as f32, -1 as f32), 0.5, &r) {
+        return Vec3::new(1 as f32, 0 as f32, 0 as f32);
+    }
+    let unit_dir = vec3::unit_vec3(r.direction);
+    let t = 0.5*(unit_dir.y+1.0);
+    Vec3::new(1.0, 1.0, 1.0)*(1.0-t) + Vec3::new(0.5, 0.7, 1.0)*t
 }
 
 fn main() {
@@ -26,15 +47,22 @@ fn main() {
         panic!("{}", e);
     });
 
+    let lower_left_corner = Vec3::new(-2.0, -1.0, -1.0);
+    let horizontal = Vec3::new(4.0, 0.0, 0.0);
+    let vertical = Vec3::new(0.0, 2.0, 0.0);
+    let origin = Vec3::new(0.0, 0.0, 0.0);
 
     for j in 0..WIDTH {
         for i in 0..HEIGHT {
-            let r = j as f64 / WIDTH as f64;
-            let g = i as f64 / HEIGHT as f64;
-            let b = 0.2 as f64;
-            let ir = (255.99*r) as u32;
-            let ig = (255.99*g) as u32;
-            let ib = (255.99*b) as u32;
+            //let col = Vec3::new(j as f32/WIDTH as f32, i as f32/HEIGHT as f32, 0.2 as f32);
+            let u = j as f32 / WIDTH as f32;
+            let v = i as f32 / HEIGHT as f32;
+            //let b = 0.2 as f64;
+            let r = Ray::new(origin, lower_left_corner + horizontal*u + vertical*v);
+            let col = color(r);
+            let ir = (255.99*col.x) as u32;
+            let ig = (255.99*col.y) as u32;
+            let ib = (255.99*col.z) as u32;
             buffer[to_buffer_index(i, j, WIDTH, HEIGHT)] = to_bgra(ir, ig, ib);
         }
     }
