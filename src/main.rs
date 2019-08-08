@@ -1,5 +1,7 @@
 extern crate minifb;
 
+mod vec3;
+
 use minifb::{Key, WindowOptions, Window};
 
 const WIDTH: usize = 640;
