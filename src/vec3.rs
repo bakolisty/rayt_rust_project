@@ -85,7 +85,7 @@ impl ops::Sub<Vec3> for Vec3 {
         Vec3 {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
-            z: self.z - rhs.y,
+            z: self.z - rhs.z,
             r: self.r,
             g: self.g,
             b: self.b,

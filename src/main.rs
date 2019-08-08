@@ -8,7 +8,7 @@ use vec3::Vec3;
 use ray::Ray;
 
 const WIDTH: usize = 640;
-const HEIGHT: usize = 360;
+const HEIGHT: usize = 320;
 
 fn to_buffer_index(i: usize, j: usize, width: usize, height: usize) -> usize {
     ((height - 1 - i) * width) + j
@@ -18,18 +18,25 @@ fn to_bgra(r: u32, g: u32, b: u32) -> u32 {
     255 << 24 | r << 16 | g << 8 | b
 }
 
-fn hit_sphere(center: Vec3, radius: f32, r: &Ray) -> bool {
+fn hit_sphere(center: Vec3, radius: f32, r: &Ray) -> f32 {
     let oc = r.origin - center;
     let a = r.direction.dot(r.direction);
     let b = 2.0 * oc.dot(r.direction);
-    let c = oc.dot(oc) - radius*radius;
-    let discriminant = b*b - 4 as f32*a*c;
-    discriminant > 0 as f32
+    let c = oc.dot(oc) - (radius*radius);
+    let discriminant = b*b - (4.0*a*c);
+    if discriminant < 0.0 {
+        return -1.0
+    }
+    else {
+        (-b - discriminant.sqrt()) / (2.0*a)
+    }
 }
 
-fn color(r: Ray) -> Vec3 {
-    if hit_sphere(Vec3::new(0 as f32, 0 as f32, -1 as f32), 0.5, &r) {
-        return Vec3::new(1 as f32, 0 as f32, 0 as f32);
+fn color(r: &Ray) -> Vec3 {
+    let t = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, &r);
+    if t > 0.0 {
+        let n = vec3::unit_vec3(r.point_at_parameter(t) - Vec3::new(0.0, 0.0, -1.0));
+        return Vec3::new(n.x+1.0, n.y+1.0, n.z+1.0)*0.5
     }
     let unit_dir = vec3::unit_vec3(r.direction);
     let t = 0.5*(unit_dir.y+1.0);
@@ -47,9 +54,9 @@ fn main() {
         panic!("{}", e);
     });
 
-    let lower_left_corner = Vec3::new(-2.0, -1.0, -1.0);
-    let horizontal = Vec3::new(4.0, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, 2.0, 0.0);
+    let lower_left_corner = Vec3::new(-1.6, -0.8, -1.0);
+    let horizontal = Vec3::new(3.2, 0.0, 0.0);
+    let vertical = Vec3::new(0.0, 1.6, 0.0);
     let origin = Vec3::new(0.0, 0.0, 0.0);
 
     for j in 0..WIDTH {
@@ -58,8 +65,8 @@ fn main() {
             let u = j as f32 / WIDTH as f32;
             let v = i as f32 / HEIGHT as f32;
             //let b = 0.2 as f64;
-            let r = Ray::new(origin, lower_left_corner + horizontal*u + vertical*v);
-            let col = color(r);
+            let r = Ray::new(origin, lower_left_corner + (horizontal*u) + (vertical*v));
+            let col = color(&r);
             let ir = (255.99*col.x) as u32;
             let ig = (255.99*col.y) as u32;
             let ib = (255.99*col.z) as u32;
