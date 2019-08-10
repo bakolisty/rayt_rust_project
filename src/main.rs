@@ -2,6 +2,8 @@ extern crate minifb;
 
 mod vec3;
 mod ray;
+mod hitable;
+//mod sphere;
 
 use minifb::{Key, WindowOptions, Window};
 use vec3::Vec3;
