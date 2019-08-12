@@ -2,6 +2,7 @@ use crate::vec3::Vec3;
 use crate::ray::Ray;
 use crate::hitable;
 
+#[derive(Copy, Clone)]
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
@@ -14,21 +15,24 @@ impl Sphere {
 }
 
 impl hitable::Hitable for Sphere {
-    fn hit(&self, r: Ray, t_min: f32, t_max: f32, rec: hitable::HitRecord) -> bool {
+    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<hitable::HitRecord> {
         let oc = r.origin - self.center;
         let a = r.direction.dot(r.direction);
         let b = 2.0 * oc.dot(r.direction);
         let c = oc.dot(oc) - (self.radius*self.radius);
         let discriminant = b*b - (4.0*a*c);
         if discriminant > 0.0 {
-            let temp = (-b + f32::sqrt(b*b-a*c)) / a;
+            let mut temp = (-b - f32::sqrt(b*b-a*c)) / a;
             if temp < t_max && temp > t_min {
-                
+                let rec = hitable::HitRecord::new(temp, r.point_at_parameter(temp), (r.point_at_parameter(temp) - self.center) / self.radius);
+                return Some(rec)
+            }
+            temp = (-b + f32::sqrt(b*b-a*c)) / a;
+            if temp < t_max && temp > t_min {
+                let rec = hitable::HitRecord::new(temp, r.point_at_parameter(temp), (r.point_at_parameter(temp) - self.center) / self.radius);
+                return Some(rec)
             }
         }
-        else {
-            (-b - discriminant.sqrt()) / (2.0*a)
-        }
-        false
+        None
     }
 }
