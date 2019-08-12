@@ -1,18 +1,22 @@
 extern crate minifb;
+extern crate rand;
 
 mod vec3;
 mod ray;
 mod hitable;
 mod sphere;
+mod camera;
 
 use minifb::{Key, WindowOptions, Window};
+use rand::prelude;
 use vec3::Vec3;
 use ray::Ray;
-use hitable::HitableList;
-use hitable::Hitable;
+use hitable::{HitableList, Hitable};
+use camera::Camera;
 
 const WIDTH: usize = 640;
 const HEIGHT: usize = 320;
+const NS: usize = 100;
 
 fn to_buffer_index(i: usize, j: usize, width: usize, height: usize) -> usize {
     ((height - 1 - i) * width) + j
@@ -70,10 +74,19 @@ fn main() {
         panic!("{}", e);
     });
 
+/*
     let lower_left_corner = Vec3::new(-1.6, -0.8, -1.0);
     let horizontal = Vec3::new(3.2, 0.0, 0.0);
     let vertical = Vec3::new(0.0, 1.6, 0.0);
     let origin = Vec3::new(0.0, 0.0, 0.0);
+*/
+
+    let cam = Camera::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(-1.6, -0.8, -1.0), 
+        Vec3::new(3.2, 0.0, 0.0), 
+        Vec3::new(0.0, 1.6, 0.0),
+        );
     let spheres = vec![
         sphere::Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5),
         sphere::Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0),
@@ -82,9 +95,14 @@ fn main() {
 
     for j in 0..WIDTH {
         for i in 0..HEIGHT {
-            //let col = Vec3::new(j as f32/WIDTH as f32, i as f32/HEIGHT as f32, 0.2 as f32);
+            /*let col = Vec3::new(j as f32/WIDTH as f32, i as f32/HEIGHT as f32, 0.2 as f32);
             let u = j as f32 / WIDTH as f32;
             let v = i as f32 / HEIGHT as f32;
+            */
+            for z in 0..NS {
+                let u = (j as f32 + rand:: / WIDTH as f32;
+                let v = i as f32 / HEIGHT as f32;
+            }
             let r = Ray::new(origin, lower_left_corner + (horizontal*u) + (vertical*v));
             let col = color(&r, &list);
             let ir = (255.99*col.x) as u32;
