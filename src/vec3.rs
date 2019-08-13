@@ -138,6 +138,16 @@ impl ops::Div<Vec3> for Vec3 {
     }
 }
 
+
+impl ops::DivAssign<f32> for Vec3 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs;
+    }
+}
+
+
 impl ops::Div<f32> for Vec3 {
     type Output = Vec3;
 

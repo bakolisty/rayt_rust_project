@@ -13,7 +13,7 @@ impl Camera {
         Camera{origin, lower_left_corner, horizontal, vertical}
     }
 
-    pub fn GetRay(&self, u: f32, v: f32) -> Ray {
+    pub fn get_ray(&self, u: f32, v: f32) -> Ray {
         Ray::new(self.origin, self.lower_left_corner + (self.horizontal*u) + (self.vertical*v))
     }
 }
