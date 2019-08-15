@@ -1,4 +1,4 @@
-use std::ops;
+use std::{ops, cmp};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vec3 {
@@ -27,6 +27,8 @@ impl Vec3 {
         self.x*v2.x+self.y*v2.y+self.z*v2.z
     }
 
+/*
+    these functions will be used for other materials
     pub fn cross(&self, v2: Vec3) -> Vec3 {
         Vec3 {
             x: (self.y*v2.z-self.z*v2.y),
@@ -48,12 +50,16 @@ impl Vec3 {
             g: self.g,
             b: self.b,
         }
+ 
     }
+*/
 }
 
 pub fn unit_vec3(v: Vec3) -> Vec3 {
     v / v.length()
 }
+
+// All of the functions below are overloading operators for the Vec3 struct
 
 impl ops::Add<Vec3> for Vec3 {
     type Output = Vec3;
@@ -175,5 +181,56 @@ impl ops::Neg for Vec3 {
             g: self.g,
             b: self.b,
         }
+    }
+}
+
+impl cmp::PartialEq for Vec3 {
+
+    fn eq(&self, rhs: &Vec3) -> bool {
+        if self.x != rhs.x {
+            return false;
+        }
+        if self.y != rhs.y {
+            return false;
+        }
+        if self.z != rhs.z {
+            return false;
+        }
+        true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Vec3;
+
+    #[test]
+    fn add() {
+        assert_eq!(
+            Vec3 {x:1.0, y:1.0, z:1.0, r:1.0, g:1.0, b:1.0}
+            +
+            Vec3 {x:1.0, y:1.0, z:1.0, r:1.0, g:1.0, b:1.0},
+            Vec3 {x:2.0, y:2.0, z:2.0, r:1.0, g:1.0, b:1.0}
+        );
+    }
+
+    #[test]
+    fn subtract() {
+        assert_eq!(
+            Vec3 {x:1.0, y:1.0, z:1.0, r:1.0, g:1.0, b:1.0}
+            -
+            Vec3 {x:1.0, y:1.0, z:1.0, r:1.0, g:1.0, b:1.0},
+            Vec3 {x:0.0, y:0.0, z:0.0, r:1.0, g:1.0, b:1.0}
+        );
+    }
+
+    #[test]
+    fn multiply() {
+        assert_eq!(
+            Vec3 {x:1.0, y:1.0, z:1.0, r:1.0, g:1.0, b:1.0}
+            *
+            2.0,
+            Vec3 {x:2.0, y:2.0, z:2.0, r:1.0, g:1.0, b:1.0}
+        );
     }
 }

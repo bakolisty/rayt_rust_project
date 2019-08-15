@@ -15,6 +15,8 @@ impl Sphere {
 }
 
 impl hitable::Hitable for Sphere {
+
+    // checks to see if the ray hits the sphere
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<hitable::HitRecord> {
         let oc = r.origin - self.center;
         let a = r.direction.dot(r.direction);

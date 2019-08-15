@@ -16,26 +16,30 @@ use camera::Camera;
 
 const WIDTH: usize = 640;
 const HEIGHT: usize = 320;
-const NS: usize = 32;
+const NS: usize = 32; // number of AA samples
 
+// translates x, y coordinates into the correct buffer index
 fn to_buffer_index(i: usize, j: usize, width: usize, height: usize) -> usize {
     ((height - 1 - i) * width) + j
 }
 
+// translates rgb color values into uint
 fn to_bgra(r: u32, g: u32, b: u32) -> u32 {
     255 << 24 | r << 16 | g << 8 | b
 }
 
+// generates a random sphere, used for diffuse materials
 fn rand_in_unit_sphere() -> Vec3 {
     let mut rng = rand::thread_rng();
     loop {
-        let p = Vec3::new(rng.gen(), rng.gen(), rng.gen())*2.0 - Vec3::new(0.5, 0.5, 0.5);
-        if p.squared_len() >= 1.0 {
+        let p = Vec3::new(rng.gen(), rng.gen(), rng.gen())*2.0 - Vec3::new(1.0, 1.0, 1.0);
+        if p.squared_len() <= 1.0 {
             break p;
         } 
     }
 }
 
+// sets rgb color values based on if a ray hits an object in the world
 fn color(r: &Ray, world: &HitableList) -> Vec3 {
     if let Some(hit) = world.hit(&r, 0.001, 1000000.0) {
         let target = hit.p + hit.normal + rand_in_unit_sphere();
@@ -66,6 +70,7 @@ fn main() {
         Vec3::new(0.0, 1.6, 0.0),
         );
 
+    // you can add new spheres to the world here (they may look lopsided)
     let spheres = vec![
         sphere::Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.25),
         sphere::Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0),
@@ -79,6 +84,7 @@ fn main() {
 
             let mut col = Vec3::new(0.0, 0.0, 0.0);
 
+            // AA implementation, sums the color of NS random pixels around current x,y coordinates
             for _ in 0..NS {
                 let u = (j as f32 + rng.gen_range(0.0, 1.0)) / WIDTH as f32;
                 let v = (i as f32 + rng.gen_range(0.0, 1.0)) / HEIGHT as f32;
@@ -86,15 +92,21 @@ fn main() {
                 col += color(&r, &list);
             }
 
+            // finds the average color for the pixel based on NS samples of the pixel
             col /= NS as f32;
             col = Vec3::new(col.x.sqrt(), col.y.sqrt(), col.z.sqrt());
+
+            // translates x,y,x to rgb
             let ir = (255.99*col.x) as u32;
             let ig = (255.99*col.y) as u32;
             let ib = (255.99*col.z) as u32;
+
+            // paints the pixel in the buffer based on the rgb values 
             buffer[to_buffer_index(i, j, WIDTH, HEIGHT)] = to_bgra(ir, ig, ib);
         }
     }
 
+    // displays pixel buffer in window
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(buffer.as_slice()).unwrap();
     }

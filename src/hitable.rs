@@ -30,6 +30,8 @@ impl HitableList {
 }
 
 impl Hitable for HitableList {
+
+    // checks HitableList for object hits
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_so_far = t_max;
         let mut maybe_hit: Option<HitRecord> = None;
